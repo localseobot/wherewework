@@ -1,0 +1,64 @@
+{
+  "_metadata": {
+    "major_version": 2,
+    "minor_version": 1
+  },
+  "display_information": {
+    "name": "WhereWeWork",
+    "description": "See where your team works — on a 3D globe",
+    "background_color": "#1e40af",
+    "long_description": "WhereWeWork shows your Slack workspace members on a beautiful 3D globe. See who's online, their location, local time, and avatar — all in real-time. Perfect for distributed teams who want to feel connected across the world."
+  },
+  "features": {
+    "app_home": {
+      "home_tab_enabled": true,
+      "messages_tab_enabled": false,
+      "messages_tab_read_only_enabled": false
+    },
+    "bot_user": {
+      "display_name": "WhereWeWork",
+      "always_online": true
+    },
+    "slash_commands": [
+      {
+        "command": "/wherewework",
+        "url": "https://YOUR_DOMAIN/api/slack/commands",
+        "description": "Set your location on the team globe",
+        "usage_hint": "[set <city>]",
+        "should_escape": false
+      }
+    ]
+  },
+  "oauth_config": {
+    "redirect_urls": [
+      "https://YOUR_DOMAIN/api/slack/oauth"
+    ],
+    "scopes": {
+      "bot": [
+        "commands",
+        "users:read",
+        "users.profile:read",
+        "team:read"
+      ],
+      "user": [
+        "identity.basic",
+        "identity.avatar"
+      ]
+    }
+  },
+  "settings": {
+    "event_subscriptions": {
+      "request_url": "https://YOUR_DOMAIN/api/slack/events",
+      "bot_events": [
+        "team_join"
+      ]
+    },
+    "interactivity": {
+      "is_enabled": true,
+      "request_url": "https://YOUR_DOMAIN/api/slack/interactions"
+    },
+    "org_deploy_enabled": false,
+    "socket_mode_enabled": false,
+    "token_rotation_enabled": false
+  }
+}
