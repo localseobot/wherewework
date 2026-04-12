@@ -22,7 +22,7 @@
     "slash_commands": [
       {
         "command": "/wherewework",
-        "url": "https://YOUR_DOMAIN/api/slack/commands",
+        "url": "https://wherewework-beryl.vercel.app/api/slack/commands",
         "description": "Set your location on the team globe",
         "usage_hint": "[set <city>]",
         "should_escape": false
@@ -31,7 +31,7 @@
   },
   "oauth_config": {
     "redirect_urls": [
-      "https://YOUR_DOMAIN/api/slack/oauth"
+      "https://wherewework-beryl.vercel.app/api/slack/oauth"
     ],
     "scopes": {
       "bot": [
@@ -48,14 +48,14 @@
   },
   "settings": {
     "event_subscriptions": {
-      "request_url": "https://YOUR_DOMAIN/api/slack/events",
+      "request_url": "https://wherewework-beryl.vercel.app/api/slack/events",
       "bot_events": [
         "team_join"
       ]
     },
     "interactivity": {
       "is_enabled": true,
-      "request_url": "https://YOUR_DOMAIN/api/slack/interactions"
+      "request_url": "https://wherewework-beryl.vercel.app/api/slack/interactions"
     },
     "org_deploy_enabled": false,
     "socket_mode_enabled": false,

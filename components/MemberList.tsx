@@ -1,12 +1,21 @@
 "use client";
 
-import type { Member } from "@/lib/schema";
+import type { DemoMember } from "@/lib/demo-data";
 import { useState } from "react";
 
 interface MemberListProps {
-  members: Member[];
-  onMemberClick?: (member: Member) => void;
+  members: DemoMember[];
+  onMemberClick?: (member: DemoMember) => void;
 }
+
+const teamColors: Record<string, string> = {
+  Engineering: "bg-blue-500/20 text-blue-400",
+  Design: "bg-purple-500/20 text-purple-400",
+  Marketing: "bg-pink-500/20 text-pink-400",
+  Product: "bg-amber-500/20 text-amber-400",
+  Sales: "bg-green-500/20 text-green-400",
+  Operations: "bg-cyan-500/20 text-cyan-400",
+};
 
 export default function MemberList({ members, onMemberClick }: MemberListProps) {
   const [search, setSearch] = useState("");
@@ -85,9 +94,20 @@ export default function MemberList({ members, onMemberClick }: MemberListProps) 
               <p className="text-sm font-medium text-white truncate">
                 {member.displayName}
               </p>
-              <p className="text-xs text-slate-400 truncate">
-                {member.locationName || member.timezone || "No location set"}
-              </p>
+              <div className="flex items-center gap-2">
+                <p className="text-xs text-slate-400 truncate">
+                  {member.locationName || member.timezone || "No location set"}
+                </p>
+              </div>
+              {member.team && (
+                <span
+                  className={`inline-block mt-0.5 text-[10px] px-1.5 py-0.5 rounded-full ${
+                    teamColors[member.team] || "bg-slate-600 text-slate-300"
+                  }`}
+                >
+                  {member.team}
+                </span>
+              )}
             </div>
             {member.timezone && (
               <span className="text-xs text-slate-500 flex-shrink-0">
