@@ -82,9 +82,9 @@ export default function Globe({ members, allMembers, selectedTeam, onMemberClick
                       width: 40px;
                       height: 40px;
                       border-radius: 50%;
-                      border: 2px solid ${d.isOnline ? "#22c55e" : "#6b7280"};
+                      border: 2px solid ${d.isOnline ? "#10b981" : "#64748b"};
                       object-fit: cover;
-                      background: #1e293b;
+                      background: #0e1628;
                     "
                   />
                   <div style="
@@ -94,19 +94,23 @@ export default function Globe({ members, allMembers, selectedTeam, onMemberClick
                     width: 12px;
                     height: 12px;
                     border-radius: 50%;
-                    background: ${d.isOnline ? "#22c55e" : "#6b7280"};
-                    border: 2px solid #0f172a;
+                    background: ${d.isOnline ? "#10b981" : "#64748b"};
+                    border: 2px solid #080d1a;
+                    ${d.isOnline ? "box-shadow: 0 0 6px #10b981;" : ""}
                   "></div>
                 </div>
                 <div style="
                   margin-top: 4px;
-                  padding: 2px 6px;
-                  background: rgba(15, 23, 42, 0.85);
+                  padding: 2px 8px;
+                  background: rgba(14, 22, 40, 0.9);
+                  border: 1px solid rgba(255,255,255,0.07);
                   border-radius: 4px;
                   font-size: 11px;
-                  color: #e2e8f0;
+                  color: #f0f4ff;
                   white-space: nowrap;
-                  font-family: system-ui, -apple-system, sans-serif;
+                  font-family: 'Syne', system-ui, sans-serif;
+                  font-weight: 600;
+                  letter-spacing: -0.2px;
                 ">${d.displayName}</div>
               </div>
             `;

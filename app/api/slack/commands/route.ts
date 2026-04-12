@@ -47,11 +47,7 @@ export async function POST(request: Request) {
 
       const resolvedName = geoData[0].display_name.split(",").slice(0, 2).join(",").trim();
 
-      // Store location in user's Slack profile status text with a marker
-      // We use the profile "Location" field if available, otherwise status
       if (botToken) {
-        // Try to set the user's profile fields (needs users.profile:write on user token)
-        // For now, store in our local cache
         const { storeLocation } = await import("@/lib/locations");
         storeLocation(userId!, location, parseFloat(geoData[0].lat), parseFloat(geoData[0].lon));
       }
@@ -63,8 +59,20 @@ export async function POST(request: Request) {
             type: "section",
             text: {
               type: "mrkdwn",
-              text: `:white_check_mark: Your location has been set to *${resolvedName}*\n\nYou'll appear on the globe at this location. <${globeUrl}|View the Globe>`,
+              text: `:white_check_mark: Your location has been set to *${resolvedName}*`,
             },
+          },
+          {
+            type: "actions",
+            elements: [
+              {
+                type: "button",
+                text: { type: "plain_text", text: "Open Globe", emoji: true },
+                url: globeUrl,
+                style: "primary",
+                action_id: "open_globe_after_set",
+              },
+            ],
           },
         ],
       });
@@ -76,64 +84,9 @@ export async function POST(request: Request) {
     }
   }
 
-  // /wherewework (no args) — open modal to set location or view globe
-  if (triggerId && botToken) {
-    // Open a modal for setting location
-    try {
-      await fetch("https://slack.com/api/views.open", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${botToken}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          trigger_id: triggerId,
-          view: {
-            type: "modal",
-            callback_id: "set_location",
-            title: { type: "plain_text", text: "WhereWeWork" },
-            submit: { type: "plain_text", text: "Set Location" },
-            close: { type: "plain_text", text: "Cancel" },
-            blocks: [
-              {
-                type: "section",
-                text: {
-                  type: "mrkdwn",
-                  text: `:globe_with_meridians: *Set your location on the team globe*\n\nEnter your city and country below, then view the globe to see your team around the world.`,
-                },
-                accessory: {
-                  type: "button",
-                  text: { type: "plain_text", text: "View Globe" },
-                  url: globeUrl,
-                  action_id: "open_globe",
-                },
-              },
-              {
-                type: "divider",
-              },
-              {
-                type: "input",
-                block_id: "location_block",
-                label: { type: "plain_text", text: "Your Location" },
-                element: {
-                  type: "plain_text_input",
-                  action_id: "location_input",
-                  placeholder: {
-                    type: "plain_text",
-                    text: "e.g. London, UK or San Francisco, CA",
-                  },
-                },
-              },
-            ],
-          },
-        }),
-      });
-    } catch (err) {
-      console.error("Error opening modal:", err);
-    }
-  }
-
-  // Also return a message with a button as fallback
+  // /wherewework (no args) — show message with buttons
+  // The "Open Globe" button uses url property (link button)
+  // The "Set My Location" button triggers a modal via interactions endpoint
   return NextResponse.json({
     response_type: "ephemeral",
     blocks: [
@@ -149,14 +102,14 @@ export async function POST(request: Request) {
         elements: [
           {
             type: "button",
-            text: { type: "plain_text", text: "Open Globe" },
+            text: { type: "plain_text", text: "Open Globe", emoji: true },
             url: globeUrl,
             style: "primary",
             action_id: "open_globe_btn",
           },
           {
             type: "button",
-            text: { type: "plain_text", text: "Set My Location" },
+            text: { type: "plain_text", text: "Set My Location", emoji: true },
             action_id: "set_location_btn",
             value: "set_location",
           },

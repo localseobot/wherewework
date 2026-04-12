@@ -9,12 +9,12 @@ interface MemberListProps {
 }
 
 const teamColors: Record<string, string> = {
-  Engineering: "bg-blue-500/20 text-blue-400",
-  Design: "bg-purple-500/20 text-purple-400",
-  Marketing: "bg-pink-500/20 text-pink-400",
-  Product: "bg-amber-500/20 text-amber-400",
-  Sales: "bg-green-500/20 text-green-400",
-  Operations: "bg-cyan-500/20 text-cyan-400",
+  Engineering: "bg-[rgba(59,130,246,0.18)] text-[#93c5fd]",
+  Design: "bg-[rgba(139,92,246,0.18)] text-[#c4b5fd]",
+  Marketing: "bg-[rgba(236,72,153,0.18)] text-[#f9a8d4]",
+  Product: "bg-[rgba(249,115,22,0.18)] text-[#fdba74]",
+  Sales: "bg-[rgba(20,184,166,0.18)] text-[#5eead4]",
+  Operations: "bg-[rgba(100,116,139,0.18)] text-[#94a3b8]",
 };
 
 export default function MemberList({ members, onMemberClick }: MemberListProps) {
@@ -36,9 +36,9 @@ export default function MemberList({ members, onMemberClick }: MemberListProps) 
 
   return (
     <div className="flex flex-col h-full">
-      <div className="p-4 border-b border-slate-700">
-        <h2 className="text-lg font-semibold text-white mb-1">Team</h2>
-        <p className="text-sm text-slate-400 mb-3">
+      <div className="p-4 border-b border-[rgba(255,255,255,0.07)]">
+        <h2 className="text-lg font-bold text-[#f0f4ff] mb-1">Team</h2>
+        <p className="text-sm text-[#4a6080] font-mono mb-3">
           {onlineCount} online &middot; {members.length} total
         </p>
 
@@ -47,18 +47,18 @@ export default function MemberList({ members, onMemberClick }: MemberListProps) 
           placeholder="Search members..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-sm text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 mb-2"
+          className="w-full px-3 py-2 bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.07)] rounded-md text-sm text-[#f0f4ff] placeholder-[#4a6080] focus:outline-none focus:ring-2 focus:ring-[#3b82f6] focus:border-[#3b82f6] mb-2"
         />
 
-        <div className="flex gap-1">
+        <div className="flex gap-1.5">
           {(["all", "online", "offline"] as const).map((f) => (
             <button
               key={f}
               onClick={() => setFilter(f)}
               className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
                 filter === f
-                  ? "bg-blue-600 text-white"
-                  : "bg-slate-700 text-slate-300 hover:bg-slate-600"
+                  ? "bg-[#3b82f6] text-white"
+                  : "bg-[rgba(255,255,255,0.06)] text-[#4a6080] hover:bg-[rgba(255,255,255,0.1)] hover:text-[#8ea4c8]"
               }`}
             >
               {f.charAt(0).toUpperCase() + f.slice(1)}
@@ -72,7 +72,7 @@ export default function MemberList({ members, onMemberClick }: MemberListProps) 
           <button
             key={member.id}
             onClick={() => onMemberClick?.(member)}
-            className="w-full flex items-center gap-3 px-4 py-3 hover:bg-slate-700/50 transition-colors text-left"
+            className="w-full flex items-center gap-3 px-4 py-3 hover:bg-[rgba(255,255,255,0.04)] transition-colors text-left border-b border-[rgba(255,255,255,0.03)]"
           >
             <div className="relative flex-shrink-0">
               <img
@@ -80,29 +80,28 @@ export default function MemberList({ members, onMemberClick }: MemberListProps) 
                 alt={member.displayName}
                 className="w-10 h-10 rounded-full object-cover border-2"
                 style={{
-                  borderColor: member.isOnline ? "#22c55e" : "#6b7280",
+                  borderColor: member.isOnline ? "#10b981" : "#64748b",
                 }}
               />
               <div
-                className="absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-slate-800"
+                className="absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-[#0e1628]"
                 style={{
-                  background: member.isOnline ? "#22c55e" : "#6b7280",
+                  background: member.isOnline ? "#10b981" : "#64748b",
+                  boxShadow: member.isOnline ? "0 0 6px #10b981" : "none",
                 }}
               />
             </div>
             <div className="min-w-0 flex-1">
-              <p className="text-sm font-medium text-white truncate">
+              <p className="text-sm font-semibold text-[#f0f4ff] truncate">
                 {member.displayName}
               </p>
-              <div className="flex items-center gap-2">
-                <p className="text-xs text-slate-400 truncate">
-                  {member.locationName || member.timezone || "No location set"}
-                </p>
-              </div>
+              <p className="text-[11px] text-[#4a6080] font-mono truncate">
+                {member.locationName || member.timezone || "No location set"}
+              </p>
               {member.team && (
                 <span
-                  className={`inline-block mt-0.5 text-[10px] px-1.5 py-0.5 rounded-full ${
-                    teamColors[member.team] || "bg-slate-600 text-slate-300"
+                  className={`inline-block mt-1 text-[10px] px-1.5 py-0.5 rounded font-semibold ${
+                    teamColors[member.team] || "bg-[rgba(100,116,139,0.18)] text-[#94a3b8]"
                   }`}
                 >
                   {member.team}
@@ -110,14 +109,14 @@ export default function MemberList({ members, onMemberClick }: MemberListProps) 
               )}
             </div>
             {member.timezone && (
-              <span className="text-xs text-slate-500 flex-shrink-0">
+              <span className="text-xs text-[#4a6080] font-mono flex-shrink-0">
                 {getLocalTime(member.timezone)}
               </span>
             )}
           </button>
         ))}
         {filtered.length === 0 && (
-          <p className="p-4 text-sm text-slate-500 text-center">
+          <p className="p-4 text-sm text-[#4a6080] text-center font-mono">
             No members found
           </p>
         )}

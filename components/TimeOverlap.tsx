@@ -18,7 +18,6 @@ function getUtcOffsetHours(timezone: string): number {
     const parts = formatter.formatToParts(now);
     const tzPart = parts.find((p) => p.type === "timeZoneName");
     if (!tzPart) return 0;
-    // Format: "GMT+5:30" or "GMT-8" or "GMT"
     const match = tzPart.value.match(/GMT([+-]?)(\d+)?(?::(\d+))?/);
     if (!match) return 0;
     const sign = match[1] === "-" ? -1 : 1;
@@ -36,14 +35,12 @@ export default function TimeOverlap({ members, onClose }: TimeOverlapProps) {
   const memberWorkHours = useMemo(() => {
     return members.map((m) => {
       const offset = getUtcOffsetHours(m.timezone);
-      // Working hours: 9am-5pm local = convert to UTC
       const startUtc = ((9 - offset) % 24 + 24) % 24;
       const endUtc = ((17 - offset) % 24 + 24) % 24;
       return { member: m, startUtc, endUtc, offset };
     });
   }, [members]);
 
-  // Count how many people are working each hour (in UTC)
   const overlapCounts = useMemo(() => {
     return hours.map((hour) => {
       let count = 0;
@@ -52,7 +49,6 @@ export default function TimeOverlap({ members, onClose }: TimeOverlapProps) {
         if (startUtc < endUtc) {
           if (hour >= startUtc && hour < endUtc) count++;
         } else {
-          // Wraps around midnight
           if (hour >= startUtc || hour < endUtc) count++;
         }
       }
@@ -61,24 +57,22 @@ export default function TimeOverlap({ members, onClose }: TimeOverlapProps) {
   }, [memberWorkHours, hours]);
 
   const maxOverlap = Math.max(...overlapCounts, 1);
-
-  // Current UTC hour
   const currentUtcHour = new Date().getUTCHours();
 
   return (
-    <div className="absolute bottom-0 left-0 right-0 z-10 bg-slate-800/95 backdrop-blur-lg border-t border-slate-700 p-4 max-h-[50vh] overflow-y-auto">
+    <div className="absolute bottom-0 left-0 right-0 z-10 bg-[#0e1628]/95 backdrop-blur-lg border-t border-[rgba(99,179,255,0.25)] p-4 max-h-[50vh] overflow-y-auto">
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h3 className="text-white font-semibold text-sm">Working Hours Overlap</h3>
-          <p className="text-xs text-slate-400 mt-0.5">
-            Showing 9am–5pm local time for each member (UTC timeline)
+          <h3 className="text-[#f0f4ff] font-semibold text-sm">Working Hours Overlap</h3>
+          <p className="text-[10px] text-[#4a6080] mt-0.5 font-mono tracking-wide">
+            Showing 9am-5pm local time for each member (UTC timeline)
           </p>
         </div>
         <button
           onClick={onClose}
-          className="p-1.5 hover:bg-slate-700 rounded-lg transition-colors"
+          className="p-1.5 hover:bg-[rgba(255,255,255,0.06)] rounded-lg transition-colors"
         >
-          <svg className="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-4 h-4 text-[#4a6080]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
           </svg>
         </button>
@@ -87,7 +81,7 @@ export default function TimeOverlap({ members, onClose }: TimeOverlapProps) {
       {/* Overlap heat bar */}
       <div className="mb-4">
         <div className="flex items-center gap-1 mb-1">
-          <span className="text-xs text-slate-400 w-28 flex-shrink-0">Team overlap</span>
+          <span className="text-xs text-[#4a6080] font-mono w-28 flex-shrink-0">Team overlap</span>
           <div className="flex-1 flex gap-px">
             {hours.map((hour) => {
               const count = overlapCounts[hour];
@@ -100,13 +94,13 @@ export default function TimeOverlap({ members, onClose }: TimeOverlapProps) {
                   style={{
                     background:
                       count === 0
-                        ? "#1e293b"
+                        ? "#131d35"
                         : `rgba(59, 130, 246, ${0.2 + intensity * 0.8})`,
                   }}
                   title={`${hour}:00 UTC — ${count} people working`}
                 >
                   {count > 0 && (
-                    <span className="absolute inset-0 flex items-center justify-center text-[9px] text-white/80">
+                    <span className="absolute inset-0 flex items-center justify-center text-[9px] text-white/80 font-mono">
                       {count}
                     </span>
                   )}
@@ -122,7 +116,7 @@ export default function TimeOverlap({ members, onClose }: TimeOverlapProps) {
             {hours.map((hour) => (
               <div key={hour} className="flex-1 text-center">
                 {hour % 6 === 0 && (
-                  <span className="text-[9px] text-slate-500">{hour}:00</span>
+                  <span className="text-[9px] text-[#4a6080] font-mono">{hour}:00</span>
                 )}
               </div>
             ))}
@@ -140,7 +134,7 @@ export default function TimeOverlap({ members, onClose }: TimeOverlapProps) {
                 alt={member.displayName}
                 className="w-5 h-5 rounded-full"
               />
-              <span className="text-xs text-slate-300 truncate">{member.displayName}</span>
+              <span className="text-xs text-[#8ea4c8] truncate">{member.displayName}</span>
             </div>
             <div className="flex-1 flex gap-px">
               {hours.map((hour) => {
@@ -158,9 +152,9 @@ export default function TimeOverlap({ members, onClose }: TimeOverlapProps) {
                     style={{
                       background: isWorking
                         ? member.isOnline
-                          ? "#22c55e"
+                          ? "#10b981"
                           : "#3b82f6"
-                        : "#1e293b",
+                        : "#131d35",
                     }}
                   />
                 );
@@ -171,17 +165,17 @@ export default function TimeOverlap({ members, onClose }: TimeOverlapProps) {
       </div>
 
       {/* Legend */}
-      <div className="flex items-center gap-4 mt-3 text-xs text-slate-400">
+      <div className="flex items-center gap-4 mt-3 text-xs text-[#4a6080] font-mono">
         <div className="flex items-center gap-1">
-          <div className="w-3 h-3 rounded-sm bg-green-500" />
+          <div className="w-3 h-3 rounded-sm bg-[#10b981]" style={{ boxShadow: "0 0 4px #10b981" }} />
           <span>Online & working</span>
         </div>
         <div className="flex items-center gap-1">
-          <div className="w-3 h-3 rounded-sm bg-blue-500" />
+          <div className="w-3 h-3 rounded-sm bg-[#3b82f6]" />
           <span>Working hours</span>
         </div>
         <div className="flex items-center gap-1">
-          <div className="w-3 h-3 rounded-sm bg-slate-800" />
+          <div className="w-3 h-3 rounded-sm bg-[#131d35]" />
           <span>Off hours</span>
         </div>
         <div className="flex items-center gap-1">

@@ -1,26 +1,113 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Brand backgrounds */
+  --bg-deep: #080d1a;
+  --bg-panel: #0e1628;
+  --bg-card: #131d35;
+  --bg-card-hover: #182040;
+
+  /* Brand borders */
+  --border: rgba(255, 255, 255, 0.07);
+  --border-bright: rgba(99, 179, 255, 0.25);
+
+  /* Brand colours */
+  --blue-primary: #3b82f6;
+  --blue-glow: #60a5fa;
+  --blue-deep: #1d4ed8;
+  --teal: #14b8a6;
+  --amber: #f59e0b;
+  --rose: #f43f5e;
+  --violet: #8b5cf6;
+  --emerald: #10b981;
+  --slate: #64748b;
+
+  /* Text */
+  --text-primary: #f0f4ff;
+  --text-secondary: #8ea4c8;
+  --text-muted: #4a6080;
+
+  /* Tailwind overrides */
+  --background: var(--bg-deep);
+  --foreground: var(--text-primary);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --font-display: var(--font-syne);
+  --font-mono: var(--font-dm-mono);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--bg-deep);
+  color: var(--text-primary);
+  font-family: var(--font-syne), system-ui, sans-serif;
+}
+
+/* Starfield background effect */
+.starfield {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    radial-gradient(ellipse 80% 60% at 50% 0%, rgba(59, 130, 246, 0.12) 0%, transparent 70%),
+    radial-gradient(ellipse 40% 40% at 80% 80%, rgba(139, 92, 246, 0.07) 0%, transparent 60%);
+}
+
+.starfield::before,
+.starfield::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(1px 1px at 10% 20%, rgba(255, 255, 255, 0.5) 0%, transparent 0%),
+    radial-gradient(1px 1px at 30% 70%, rgba(255, 255, 255, 0.4) 0%, transparent 0%),
+    radial-gradient(1.5px 1.5px at 55% 15%, rgba(255, 255, 255, 0.6) 0%, transparent 0%),
+    radial-gradient(1px 1px at 70% 45%, rgba(255, 255, 255, 0.3) 0%, transparent 0%),
+    radial-gradient(1px 1px at 88% 25%, rgba(255, 255, 255, 0.5) 0%, transparent 0%),
+    radial-gradient(1px 1px at 15% 85%, rgba(255, 255, 255, 0.4) 0%, transparent 0%),
+    radial-gradient(1px 1px at 42% 55%, rgba(255, 255, 255, 0.3) 0%, transparent 0%),
+    radial-gradient(1px 1px at 93% 65%, rgba(255, 255, 255, 0.45) 0%, transparent 0%),
+    radial-gradient(1px 1px at 60% 90%, rgba(255, 255, 255, 0.35) 0%, transparent 0%),
+    radial-gradient(1px 1px at 25% 40%, rgba(255, 255, 255, 0.5) 0%, transparent 0%);
+}
+
+.starfield::after {
+  background-image:
+    radial-gradient(1px 1px at 5% 50%, rgba(255, 255, 255, 0.3) 0%, transparent 0%),
+    radial-gradient(1px 1px at 80% 10%, rgba(255, 255, 255, 0.4) 0%, transparent 0%),
+    radial-gradient(1.5px 1.5px at 45% 80%, rgba(255, 255, 255, 0.5) 0%, transparent 0%),
+    radial-gradient(1px 1px at 65% 35%, rgba(255, 255, 255, 0.3) 0%, transparent 0%),
+    radial-gradient(1px 1px at 20% 60%, rgba(255, 255, 255, 0.4) 0%, transparent 0%),
+    radial-gradient(1px 1px at 35% 95%, rgba(255, 255, 255, 0.35) 0%, transparent 0%),
+    radial-gradient(1px 1px at 75% 75%, rgba(255, 255, 255, 0.3) 0%, transparent 0%),
+    radial-gradient(1px 1px at 90% 50%, rgba(255, 255, 255, 0.45) 0%, transparent 0%),
+    radial-gradient(1px 1px at 50% 30%, rgba(255, 255, 255, 0.4) 0%, transparent 0%),
+    radial-gradient(1px 1px at 12% 12%, rgba(255, 255, 255, 0.5) 0%, transparent 0%);
+}
+
+/* Logo dot pulse animation */
+@keyframes pulse-dot {
+  0%, 100% { box-shadow: 0 0 18px var(--blue-primary), 0 0 36px rgba(59, 130, 246, 0.4); }
+  50%      { box-shadow: 0 0 28px var(--blue-glow), 0 0 56px rgba(96, 165, 250, 0.6); }
+}
+
+.logo-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--blue-primary);
+  box-shadow: 0 0 18px var(--blue-primary), 0 0 36px rgba(59, 130, 246, 0.4);
+  animation: pulse-dot 2.4s ease-in-out infinite;
+}
+
+/* Brand button glow */
+.btn-brand {
+  box-shadow: 0 0 18px rgba(59, 130, 246, 0.35);
+  transition: all 0.15s;
+}
+.btn-brand:hover {
+  box-shadow: 0 0 28px rgba(96, 165, 250, 0.5);
 }

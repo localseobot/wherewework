@@ -9,6 +9,15 @@ interface MemberCardProps {
   onClose: () => void;
 }
 
+const teamTagColors: Record<string, string> = {
+  Engineering: "bg-[rgba(59,130,246,0.18)] text-[#93c5fd]",
+  Design: "bg-[rgba(139,92,246,0.18)] text-[#c4b5fd]",
+  Marketing: "bg-[rgba(236,72,153,0.18)] text-[#f9a8d4]",
+  Product: "bg-[rgba(249,115,22,0.18)] text-[#fdba74]",
+  Sales: "bg-[rgba(20,184,166,0.18)] text-[#5eead4]",
+  Operations: "bg-[rgba(100,116,139,0.18)] text-[#94a3b8]",
+};
+
 function LiveTime({ timezone }: { timezone: string }) {
   const [time, setTime] = useState("");
 
@@ -33,7 +42,7 @@ function LiveTime({ timezone }: { timezone: string }) {
     return () => clearInterval(interval);
   }, [timezone]);
 
-  return <span>{time}</span>;
+  return <span className="text-[#14b8a6] font-mono">{time}</span>;
 }
 
 const statusIcons: Record<string, string> = {
@@ -51,12 +60,12 @@ const statusIcons: Record<string, string> = {
 
 export default function MemberCard({ member, isDemo, onClose }: MemberCardProps) {
   return (
-    <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 bg-slate-800/95 backdrop-blur-lg border border-slate-700 rounded-2xl p-5 shadow-2xl w-[340px]">
+    <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 bg-[#0e1628]/95 backdrop-blur-lg border border-[rgba(99,179,255,0.25)] rounded-xl p-5 shadow-2xl w-[340px]">
       <button
         onClick={onClose}
-        className="absolute top-3 right-3 p-1 hover:bg-slate-700 rounded-lg transition-colors"
+        className="absolute top-3 right-3 p-1 hover:bg-[rgba(255,255,255,0.06)] rounded-lg transition-colors"
       >
-        <svg className="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg className="w-4 h-4 text-[#4a6080]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
         </svg>
       </button>
@@ -67,18 +76,21 @@ export default function MemberCard({ member, isDemo, onClose }: MemberCardProps)
             src={member.avatarUrl || "/default-avatar.png"}
             alt={member.displayName}
             className="w-14 h-14 rounded-full border-2 object-cover"
-            style={{ borderColor: member.isOnline ? "#22c55e" : "#6b7280" }}
+            style={{ borderColor: member.isOnline ? "#10b981" : "#64748b" }}
           />
           <div
-            className="absolute bottom-0 right-0 w-4 h-4 rounded-full border-2 border-slate-800"
-            style={{ background: member.isOnline ? "#22c55e" : "#6b7280" }}
+            className="absolute bottom-0 right-0 w-4 h-4 rounded-full border-2 border-[#0e1628]"
+            style={{
+              background: member.isOnline ? "#10b981" : "#64748b",
+              boxShadow: member.isOnline ? "0 0 6px #10b981" : "none",
+            }}
           />
         </div>
         <div className="flex-1 min-w-0">
-          <h3 className="text-white font-semibold text-base">{member.displayName}</h3>
-          <p className="text-sm text-slate-400">{member.locationName}</p>
+          <h3 className="text-[#f0f4ff] font-semibold text-base">{member.displayName}</h3>
+          <p className="text-sm text-[#8ea4c8] font-mono text-[11px]">{member.locationName}</p>
           {member.team && (
-            <span className="inline-block mt-1 text-xs bg-slate-700 text-slate-300 px-2 py-0.5 rounded-full">
+            <span className={`inline-block mt-1 text-[10px] px-2 py-0.5 rounded font-semibold ${teamTagColors[member.team] || "bg-[rgba(100,116,139,0.18)] text-[#94a3b8]"}`}>
               {member.team}
             </span>
           )}
@@ -89,14 +101,14 @@ export default function MemberCard({ member, isDemo, onClose }: MemberCardProps)
         {/* Status */}
         <div className="flex items-center gap-2 text-sm">
           <span>{statusIcons[member.status] || "💬"}</span>
-          <span className="text-slate-300">{member.status}</span>
+          <span className="text-[#8ea4c8]">{member.status}</span>
         </div>
 
         {/* Local time */}
         {member.timezone && (
           <div className="flex items-center gap-2 text-sm">
             <span>🕐</span>
-            <span className="text-slate-300">
+            <span className="text-[#8ea4c8]">
               Local time: <LiveTime timezone={member.timezone} />
             </span>
           </div>
@@ -106,7 +118,7 @@ export default function MemberCard({ member, isDemo, onClose }: MemberCardProps)
         {member.timezone && (
           <div className="flex items-center gap-2 text-sm">
             <span>🌍</span>
-            <span className="text-slate-400 text-xs">
+            <span className="text-[#4a6080] text-xs font-mono">
               {member.timezone.replace(/_/g, " ")}
             </span>
           </div>
@@ -120,7 +132,7 @@ export default function MemberCard({ member, isDemo, onClose }: MemberCardProps)
             window.open(`slack://user?team=&id=${member.slackUserId}`, "_blank");
           }
         }}
-        className="mt-4 w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-sm font-medium transition-colors"
+        className="mt-4 w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-[#3b82f6] hover:bg-[#60a5fa] text-white rounded-md text-sm font-semibold transition-all btn-brand"
       >
         <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
           <path d="M5.042 15.165a2.528 2.528 0 0 1-2.52 2.523A2.528 2.528 0 0 1 0 15.165a2.527 2.527 0 0 1 2.522-2.52h2.52v2.52zM6.313 15.165a2.527 2.527 0 0 1 2.521-2.52 2.527 2.527 0 0 1 2.521 2.52v6.313A2.528 2.528 0 0 1 8.834 24a2.528 2.528 0 0 1-2.521-2.522v-6.313z" />
