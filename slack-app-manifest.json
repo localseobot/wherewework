@@ -38,7 +38,8 @@
         "commands",
         "users:read",
         "users.profile:read",
-        "team:read"
+        "team:read",
+        "chat:write"
       ],
       "user": [
         "identity.basic",

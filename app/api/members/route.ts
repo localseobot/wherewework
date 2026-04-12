@@ -137,12 +137,21 @@ export async function GET() {
           const avatarUrl = profile?.image_192 || profile?.image_72;
           const tz = m.tz;
 
-          // Try to get location from profile fields
+          // Try to get location from our location store first (user-set via /wherewework)
           let locationName: string | null = null;
           let latitude: number | null = null;
           let longitude: number | null = null;
 
-          if (profile?.fields) {
+          const { getLocation } = await import("@/lib/locations");
+          const storedLoc = getLocation(m.id);
+          if (storedLoc) {
+            locationName = storedLoc.locationName;
+            latitude = storedLoc.latitude;
+            longitude = storedLoc.longitude;
+          }
+
+          // Then try Slack profile fields
+          if (latitude === null && profile?.fields) {
             for (const field of Object.values(profile.fields)) {
               if (
                 field.label?.toLowerCase().includes("location") &&
