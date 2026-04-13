@@ -6,39 +6,46 @@ import Globe from "@/components/Globe";
 import MemberList from "@/components/MemberList";
 import MemberCard from "@/components/MemberCard";
 import TimeOverlap from "@/components/TimeOverlap";
+import MeetingFinder from "@/components/MeetingFinder";
 import { DEMO_MEMBERS, TEAMS } from "@/lib/demo-data";
 import type { DemoMember, Team } from "@/lib/demo-data";
 
 export default function GlobeContent() {
   const searchParams = useSearchParams();
-  const isDemo = searchParams.get("demo") === "true" || !process.env.NEXT_PUBLIC_SLACK_CONNECTED;
+  const forceDemo = searchParams.get("demo") === "true";
   const isEmbed = searchParams.get("embed") === "true";
 
   const [members, setMembers] = useState<DemoMember[]>(DEMO_MEMBERS);
+  const [isDemo, setIsDemo] = useState(forceDemo);
   const [sidebarOpen, setSidebarOpen] = useState(!isEmbed);
   const [selectedMember, setSelectedMember] = useState<DemoMember | null>(null);
   const [showTimeOverlap, setShowTimeOverlap] = useState(false);
+  const [showMeetingFinder, setShowMeetingFinder] = useState(false);
   const [selectedTeam, setSelectedTeam] = useState<Team | "All">("All");
 
+  // Fetch live data unless demo=true is explicitly in the URL
   useEffect(() => {
-    if (isDemo) return;
+    if (forceDemo) return;
 
     const fetchMembers = async () => {
       try {
         const res = await fetch("/api/members");
         if (res.ok) {
           const data = await res.json();
-          if (data.length > 0) setMembers(data);
+          if (data.length > 0) {
+            setMembers(data);
+            setIsDemo(false);
+          }
         }
       } catch {
-        // Use demo data on error
+        // Keep demo data on error
       }
     };
 
     fetchMembers();
     const interval = setInterval(fetchMembers, 30000);
     return () => clearInterval(interval);
-  }, [isDemo]);
+  }, [forceDemo]);
 
   const handleMemberClick = useCallback((member: DemoMember) => {
     setSelectedMember(member);
@@ -85,8 +92,8 @@ export default function GlobeContent() {
           <MemberList members={filteredMembers} onMemberClick={handleMemberClick} />
         </div>
 
-        {/* Time overlap toggle */}
-        <div className="p-4 border-t border-[rgba(255,255,255,0.07)]">
+        {/* Action buttons */}
+        <div className="p-4 border-t border-[rgba(255,255,255,0.07)] space-y-2">
           <button
             onClick={() => setShowTimeOverlap(!showTimeOverlap)}
             className={`w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-md text-sm font-semibold transition-all ${
@@ -99,6 +106,15 @@ export default function GlobeContent() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
             Time Overlap
+          </button>
+          <button
+            onClick={() => setShowMeetingFinder(true)}
+            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-md text-sm font-semibold bg-[rgba(20,184,166,0.15)] text-[#14b8a6] hover:bg-[rgba(20,184,166,0.25)] transition-all border border-[rgba(20,184,166,0.2)]"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+            Find Meeting Time
           </button>
         </div>
       </div>
@@ -161,6 +177,14 @@ export default function GlobeContent() {
           <TimeOverlap
             members={filteredMembers}
             onClose={() => setShowTimeOverlap(false)}
+          />
+        )}
+
+        {/* Meeting finder modal */}
+        {showMeetingFinder && (
+          <MeetingFinder
+            members={filteredMembers}
+            onClose={() => setShowMeetingFinder(false)}
           />
         )}
 
