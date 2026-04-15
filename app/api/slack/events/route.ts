@@ -1,31 +1,32 @@
 import { NextResponse } from "next/server";
+import { verifySlackSignature } from "@/lib/verify-slack";
 
 export async function POST(request: Request) {
   const body = await request.text();
-  const payload = JSON.parse(body);
 
-  // Handle URL verification challenge FIRST — no DB needed
+  // Verify signature on ALL requests, including url_verification
+  const isValid = await verifySlackSignature(body, request.headers);
+  if (!isValid) {
+    return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
+  }
+
+  let payload;
+  try {
+    payload = JSON.parse(body);
+  } catch {
+    return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
+  }
+
+  // Handle URL verification challenge
   if (payload.type === "url_verification") {
     return NextResponse.json({ challenge: payload.challenge });
   }
 
   // For other events, lazy-import DB (avoids native module crash if not available)
   try {
-    const { verifySlackRequest } = await import("@/lib/slack");
     const { db } = await import("@/lib/db");
     const { members, workspaces } = await import("@/lib/schema");
     const { eq, and } = await import("drizzle-orm");
-
-    const timestamp = request.headers.get("x-slack-request-timestamp") || "";
-    const signature = request.headers.get("x-slack-signature") || "";
-
-    // Verify request is from Slack
-    if (process.env.SLACK_SIGNING_SECRET) {
-      const isValid = await verifySlackRequest(body, timestamp, signature);
-      if (!isValid) {
-        return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
-      }
-    }
 
     // Handle events
     if (payload.type === "event_callback") {

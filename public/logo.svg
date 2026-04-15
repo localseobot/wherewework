@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="none">
+  <rect width="200" height="200" rx="40" fill="#0a1628"/>
+  <circle cx="100" cy="85" r="38" fill="#3b82f6"/>
+  <circle cx="90" cy="72" r="8" fill="rgba(255,255,255,0.6)"/>
+  <text x="100" y="155" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-weight="700" font-size="20" fill="#e2e8f0" letter-spacing="-0.5">WhereWeWork</text>
+</svg>

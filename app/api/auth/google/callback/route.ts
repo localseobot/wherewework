@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { exchangeCodeForTokens } from "@/lib/google-calendar";
+import crypto from "crypto";
 
 // In-memory token store (will be replaced with Supabase)
 // Maps slackUserId -> { accessToken, refreshToken, expiresAt }
@@ -19,7 +20,7 @@ export async function GET(request: Request) {
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://wherewework-beryl.vercel.app";
 
   if (error) {
-    return NextResponse.redirect(`${appUrl}/globe?calendar_error=${error}`);
+    return NextResponse.redirect(`${appUrl}/globe?calendar_error=${encodeURIComponent(error)}`);
   }
 
   if (!code || !state) {
@@ -27,10 +28,24 @@ export async function GET(request: Request) {
   }
 
   try {
-    // Decode the state to get the Slack user ID
-    const { slackUserId } = JSON.parse(
-      Buffer.from(state, "base64url").toString()
-    );
+    // Decode and verify the state parameter
+    const stateData = JSON.parse(Buffer.from(state, "base64url").toString());
+    const { slackUserId, nonce, hmac } = stateData;
+
+    if (!slackUserId || !nonce || !hmac) {
+      return NextResponse.redirect(`${appUrl}/globe?calendar_error=invalid_state`);
+    }
+
+    // Verify HMAC to prevent CSRF
+    const secret = process.env.SLACK_SIGNING_SECRET || process.env.SLACK_CLIENT_SECRET || "fallback";
+    const expectedHmac = crypto
+      .createHmac("sha256", secret)
+      .update(JSON.stringify({ slackUserId, nonce }))
+      .digest("hex");
+
+    if (hmac !== expectedHmac) {
+      return NextResponse.redirect(`${appUrl}/globe?calendar_error=invalid_state`);
+    }
 
     // Exchange the authorization code for tokens
     const tokens = await exchangeCodeForTokens(code);
@@ -41,8 +56,6 @@ export async function GET(request: Request) {
       refreshToken: tokens.refresh_token,
       expiresAt: Date.now() + tokens.expires_in * 1000,
     });
-
-    console.log(`Google Calendar connected for Slack user: ${slackUserId}`);
 
     return NextResponse.redirect(`${appUrl}/globe?calendar_connected=true`);
   } catch (err) {

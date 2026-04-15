@@ -14,10 +14,36 @@ const dmMono = DM_Mono({
   weight: ["300", "400", "500"],
 });
 
+const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://wherewework-beryl.vercel.app";
+
 export const metadata: Metadata = {
   title: "WhereWeWork — See your team on a globe",
   description:
-    "A Slack app that shows your team members on an interactive 3D globe with live online/offline status and avatars.",
+    "A Slack app that shows your distributed team on an interactive 3D globe. See who's online, find meeting times across time zones, and stay connected.",
+  metadataBase: new URL(appUrl),
+  icons: {
+    icon: "/favicon.svg",
+    apple: "/logo.svg",
+  },
+  openGraph: {
+    title: "WhereWeWork — See your team on a globe",
+    description:
+      "A Slack app that shows your distributed team on an interactive 3D globe. Find meeting times, see who's online, and feel connected across time zones.",
+    url: appUrl,
+    siteName: "WhereWeWork",
+    type: "website",
+    locale: "en_US",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "WhereWeWork — See your team on a globe",
+    description:
+      "A Slack app that shows your distributed team on an interactive 3D globe. Find meeting times across time zones.",
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
 };
 
 export default function RootLayout({

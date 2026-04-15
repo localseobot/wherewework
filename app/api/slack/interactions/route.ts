@@ -1,7 +1,15 @@
 import { NextResponse } from "next/server";
+import { verifySlackSignature } from "@/lib/verify-slack";
 
 export async function POST(request: Request) {
   const body = await request.text();
+
+  // Verify the request is from Slack
+  const isValid = await verifySlackSignature(body, request.headers);
+  if (!isValid) {
+    return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
+  }
+
   const params = new URLSearchParams(body);
   const payloadStr = params.get("payload");
 
@@ -9,7 +17,12 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: true });
   }
 
-  const payload = JSON.parse(payloadStr);
+  let payload;
+  try {
+    payload = JSON.parse(payloadStr);
+  } catch {
+    return NextResponse.json({ error: "Invalid payload" }, { status: 400 });
+  }
   const botToken = process.env.SLACK_BOT_TOKEN;
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://wherewework-beryl.vercel.app";
   const globeUrl = `${appUrl}/globe`;

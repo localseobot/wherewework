@@ -76,7 +76,7 @@ export default function MemberList({ members, onMemberClick }: MemberListProps) 
           >
             <div className="relative flex-shrink-0">
               <img
-                src={member.avatarUrl || "/default-avatar.png"}
+                src={member.avatarUrl || "/default-avatar.svg"}
                 alt={member.displayName}
                 className="w-10 h-10 rounded-full object-cover border-2"
                 style={{

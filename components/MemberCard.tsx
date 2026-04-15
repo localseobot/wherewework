@@ -73,7 +73,7 @@ export default function MemberCard({ member, isDemo, onClose }: MemberCardProps)
       <div className="flex items-start gap-4">
         <div className="relative flex-shrink-0">
           <img
-            src={member.avatarUrl || "/default-avatar.png"}
+            src={member.avatarUrl || "/default-avatar.svg"}
             alt={member.displayName}
             className="w-14 h-14 rounded-full border-2 object-cover"
             style={{ borderColor: member.isOnline ? "#10b981" : "#64748b" }}
@@ -88,7 +88,7 @@ export default function MemberCard({ member, isDemo, onClose }: MemberCardProps)
         </div>
         <div className="flex-1 min-w-0">
           <h3 className="text-[#f0f4ff] font-semibold text-base">{member.displayName}</h3>
-          <p className="text-sm text-[#8ea4c8] font-mono text-[11px]">{member.locationName}</p>
+          <p className="text-[11px] text-[#8ea4c8] font-mono">{member.locationName}</p>
           {member.team && (
             <span className={`inline-block mt-1 text-[10px] px-2 py-0.5 rounded font-semibold ${teamTagColors[member.team] || "bg-[rgba(100,116,139,0.18)] text-[#94a3b8]"}`}>
               {member.team}
@@ -129,10 +129,17 @@ export default function MemberCard({ member, isDemo, onClose }: MemberCardProps)
       <button
         onClick={() => {
           if (!isDemo && member.slackUserId) {
-            window.open(`slack://user?team=&id=${member.slackUserId}`, "_blank");
+            const teamParam = (member as { slackTeamId?: string }).slackTeamId || "";
+            window.open(`slack://user?team=${teamParam}&id=${member.slackUserId}`, "_blank");
           }
         }}
-        className="mt-4 w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-[#3b82f6] hover:bg-[#60a5fa] text-white rounded-md text-sm font-semibold transition-all btn-brand"
+        disabled={isDemo}
+        title={isDemo ? "Connect your Slack workspace to message team members" : `Message ${member.displayName} in Slack`}
+        className={`mt-4 w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-md text-sm font-semibold transition-all ${
+          isDemo
+            ? "bg-[#3b82f6]/40 text-white/50 cursor-not-allowed"
+            : "bg-[#3b82f6] hover:bg-[#60a5fa] text-white btn-brand"
+        }`}
       >
         <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
           <path d="M5.042 15.165a2.528 2.528 0 0 1-2.52 2.523A2.528 2.528 0 0 1 0 15.165a2.527 2.527 0 0 1 2.522-2.52h2.52v2.52zM6.313 15.165a2.527 2.527 0 0 1 2.521-2.52 2.527 2.527 0 0 1 2.521 2.52v6.313A2.528 2.528 0 0 1 8.834 24a2.528 2.528 0 0 1-2.521-2.522v-6.313z" />

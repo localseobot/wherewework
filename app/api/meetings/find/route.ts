@@ -38,6 +38,19 @@ function getUtcOffsetHours(timezone: string): number {
 }
 
 export async function POST(request: Request) {
+  // Verify request comes from our app
+  const origin = request.headers.get("origin") || request.headers.get("referer") || "";
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://wherewework-beryl.vercel.app";
+  const apiKey = process.env.WWW_API_KEY;
+  const authHeader = request.headers.get("authorization");
+
+  const isValidOrigin = origin.startsWith(appUrl) || origin.startsWith("http://localhost");
+  const isValidApiKey = apiKey && authHeader === `Bearer ${apiKey}`;
+
+  if (!isValidOrigin && !isValidApiKey) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   try {
     const body: FindMeetingRequest = await request.json();
     const { slackUserIds, date, durationMinutes = 30 } = body;

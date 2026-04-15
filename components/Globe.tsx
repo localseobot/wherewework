@@ -6,6 +6,10 @@ import type { DemoMember, Team } from "@/lib/demo-data";
 
 const GlobeGL = dynamic(() => import("react-globe.gl"), { ssr: false });
 
+function escapeHtml(str: string): string {
+  return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+}
+
 interface GlobeProps {
   members: DemoMember[];
   allMembers: DemoMember[];
@@ -76,8 +80,8 @@ export default function Globe({ members, allMembers, selectedTeam, onMemberClick
               ">
                 <div style="position: relative; width: 40px; height: 40px;">
                   <img
-                    src="${d.avatarUrl || "/default-avatar.png"}"
-                    alt="${d.displayName}"
+                    src="${escapeHtml(d.avatarUrl || "/default-avatar.svg")}"
+                    alt="${escapeHtml(d.displayName)}"
                     style="
                       width: 40px;
                       height: 40px;
@@ -111,7 +115,7 @@ export default function Globe({ members, allMembers, selectedTeam, onMemberClick
                   font-family: 'Syne', system-ui, sans-serif;
                   font-weight: 600;
                   letter-spacing: -0.2px;
-                ">${d.displayName}</div>
+                ">${escapeHtml(d.displayName)}</div>
               </div>
             `;
             el.style.cursor = "pointer";

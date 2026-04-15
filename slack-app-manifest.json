@@ -23,8 +23,8 @@
       {
         "command": "/wherewework",
         "url": "https://wherewework-beryl.vercel.app/api/slack/commands",
-        "description": "Set your location on the team globe",
-        "usage_hint": "[set <city>]",
+        "description": "Globe, locations, and meeting times for your team",
+        "usage_hint": "[set <city> | meet @user1 @user2 [date]]",
         "should_escape": false
       }
     ]
@@ -37,6 +37,7 @@
       "bot": [
         "commands",
         "users:read",
+        "users:read.email",
         "users.profile:read",
         "team:read",
         "chat:write"

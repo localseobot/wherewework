@@ -99,7 +99,7 @@ async function geocode(query: string): Promise<{ lat: number; lng: number } | nu
   }
 }
 
-export async function GET() {
+export async function GET(request: Request) {
   const botToken = process.env.SLACK_BOT_TOKEN;
 
   if (!botToken) {
@@ -109,7 +109,27 @@ export async function GET() {
     );
   }
 
+  // Require API key for non-browser requests, or valid origin for browser requests
+  const apiKey = process.env.WWW_API_KEY;
+  const authHeader = request.headers.get("authorization");
+  const origin = request.headers.get("origin") || request.headers.get("referer") || "";
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://wherewework-beryl.vercel.app";
+
+  const isValidOrigin = origin.startsWith(appUrl) || origin.startsWith("http://localhost");
+  const isValidApiKey = apiKey && authHeader === `Bearer ${apiKey}`;
+
+  if (!isValidOrigin && !isValidApiKey) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   try {
+    // Get team ID for deep links
+    const authRes = await fetch("https://slack.com/api/auth.test", {
+      headers: { Authorization: `Bearer ${botToken}` },
+    });
+    const authData = await authRes.json();
+    const teamId = authData.ok ? authData.team_id : "";
+
     // Fetch all workspace members
     const usersRes = await fetch("https://slack.com/api/users.list", {
       headers: { Authorization: `Bearer ${botToken}` },
@@ -199,6 +219,7 @@ export async function GET() {
             id: index + 1,
             workspaceId: 1,
             slackUserId: m.id,
+            slackTeamId: teamId,
             displayName,
             avatarUrl,
             locationName,
