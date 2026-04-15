@@ -1,16 +1,7 @@
 import { NextResponse } from "next/server";
 import { exchangeCodeForTokens } from "@/lib/google-calendar";
+import { storeGoogleToken } from "@/lib/google-tokens";
 import crypto from "crypto";
-
-// In-memory token store (will be replaced with Supabase)
-// Maps slackUserId -> { accessToken, refreshToken, expiresAt }
-const tokenStore = new Map<string, {
-  accessToken: string;
-  refreshToken: string;
-  expiresAt: number;
-}>();
-
-export { tokenStore };
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -50,12 +41,13 @@ export async function GET(request: Request) {
     // Exchange the authorization code for tokens
     const tokens = await exchangeCodeForTokens(code);
 
-    // Store the tokens (in-memory for now, Supabase later)
-    tokenStore.set(slackUserId, {
-      accessToken: tokens.access_token,
-      refreshToken: tokens.refresh_token,
-      expiresAt: Date.now() + tokens.expires_in * 1000,
-    });
+    // Store the tokens in Supabase
+    await storeGoogleToken(
+      slackUserId,
+      tokens.access_token,
+      tokens.refresh_token,
+      Date.now() + tokens.expires_in * 1000
+    );
 
     return NextResponse.redirect(`${appUrl}/globe?calendar_connected=true`);
   } catch (err) {

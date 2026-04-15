@@ -163,7 +163,7 @@ export async function GET(request: Request) {
           let longitude: number | null = null;
 
           const { getLocation } = await import("@/lib/locations");
-          const storedLoc = getLocation(m.id);
+          const storedLoc = await getLocation(m.id);
           if (storedLoc) {
             locationName = storedLoc.locationName;
             latitude = storedLoc.latitude;

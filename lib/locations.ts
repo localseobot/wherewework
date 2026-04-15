@@ -1,6 +1,4 @@
-// Simple in-memory location store
-// On Vercel serverless, this persists within a single function invocation's warm instance
-// For production, swap with Vercel KV, Upstash Redis, or a database
+import { supabase } from "./supabase";
 
 interface StoredLocation {
   userId: string;
@@ -10,27 +8,50 @@ interface StoredLocation {
   updatedAt: string;
 }
 
-const locationStore = new Map<string, StoredLocation>();
-
-export function storeLocation(
+export async function storeLocation(
   userId: string,
   locationName: string,
   latitude: number,
   longitude: number
 ) {
-  locationStore.set(userId, {
-    userId,
-    locationName,
-    latitude,
-    longitude,
-    updatedAt: new Date().toISOString(),
-  });
+  await supabase.from("user_locations").upsert(
+    {
+      user_id: userId,
+      location_name: locationName,
+      latitude,
+      longitude,
+      updated_at: new Date().toISOString(),
+    },
+    { onConflict: "user_id" }
+  );
 }
 
-export function getLocation(userId: string): StoredLocation | undefined {
-  return locationStore.get(userId);
+export async function getLocation(userId: string): Promise<StoredLocation | undefined> {
+  const { data } = await supabase
+    .from("user_locations")
+    .select("*")
+    .eq("user_id", userId)
+    .single();
+
+  if (!data) return undefined;
+
+  return {
+    userId: data.user_id,
+    locationName: data.location_name,
+    latitude: data.latitude,
+    longitude: data.longitude,
+    updatedAt: data.updated_at,
+  };
 }
 
-export function getAllLocations(): StoredLocation[] {
-  return Array.from(locationStore.values());
+export async function getAllLocations(): Promise<StoredLocation[]> {
+  const { data } = await supabase.from("user_locations").select("*");
+
+  return (data || []).map((row) => ({
+    userId: row.user_id,
+    locationName: row.location_name,
+    latitude: row.latitude,
+    longitude: row.longitude,
+    updatedAt: row.updated_at,
+  }));
 }

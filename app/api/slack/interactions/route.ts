@@ -63,7 +63,7 @@ export async function POST(request: Request) {
       }
 
       const { storeLocation } = await import("@/lib/locations");
-      storeLocation(
+      await storeLocation(
         userId,
         location.trim(),
         parseFloat(geoData[0].lat),

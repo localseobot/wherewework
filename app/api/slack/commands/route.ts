@@ -336,7 +336,7 @@ export async function POST(request: Request) {
 
       if (botToken) {
         const { storeLocation } = await import("@/lib/locations");
-        storeLocation(userId!, location, parseFloat(geoData[0].lat), parseFloat(geoData[0].lon));
+        await storeLocation(userId!, location, parseFloat(geoData[0].lat), parseFloat(geoData[0].lon));
       }
 
       return NextResponse.json({

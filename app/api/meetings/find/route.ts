@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getFreeBusy, refreshAccessToken } from "@/lib/google-calendar";
-import { tokenStore } from "@/app/api/auth/google/callback/route";
+import { getGoogleToken, updateGoogleAccessToken } from "@/lib/google-tokens";
 
 export const dynamic = "force-dynamic";
 
@@ -69,7 +69,7 @@ export async function POST(request: Request) {
     const busyByUser: Record<string, { start: Date; end: Date }[]> = {};
 
     for (const userId of slackUserIds) {
-      const stored = tokenStore.get(userId);
+      const stored = await getGoogleToken(userId);
       if (!stored) continue;
 
       // Refresh token if expired
@@ -78,11 +78,11 @@ export async function POST(request: Request) {
         try {
           const refreshed = await refreshAccessToken(stored.refreshToken);
           accessToken = refreshed.access_token;
-          tokenStore.set(userId, {
-            ...stored,
+          await updateGoogleAccessToken(
+            userId,
             accessToken,
-            expiresAt: Date.now() + refreshed.expires_in * 1000,
-          });
+            Date.now() + refreshed.expires_in * 1000
+          );
         } catch {
           continue; // Skip if token refresh fails
         }

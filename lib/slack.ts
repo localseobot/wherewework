@@ -1,7 +1,5 @@
 import { WebClient } from "@slack/web-api";
-import { db } from "./db";
-import { workspaces, members } from "./schema";
-import { eq, and } from "drizzle-orm";
+import { supabase } from "./supabase";
 import { geocode, coordsFromTimezone } from "./geo";
 import crypto from "crypto";
 
@@ -41,11 +39,11 @@ export async function syncWorkspaceMembers(
 ): Promise<void> {
   const client = getSlackClient(botToken);
 
-  const workspace = await db
-    .select()
-    .from(workspaces)
-    .where(eq(workspaces.teamId, teamId))
-    .get();
+  const { data: workspace } = await supabase
+    .from("workspaces")
+    .select("id")
+    .eq("team_id", teamId)
+    .single();
 
   if (!workspace) return;
 
@@ -98,45 +96,9 @@ export async function syncWorkspaceMembers(
         }
       }
 
-      // Upsert member
-      const existing = await db
-        .select()
-        .from(members)
-        .where(
-          and(
-            eq(members.workspaceId, workspace.id),
-            eq(members.slackUserId, member.id!)
-          )
-        )
-        .get();
-
-      if (existing) {
-        await db
-          .update(members)
-          .set({
-            displayName,
-            avatarUrl,
-            timezone: tz,
-            ...(locationName && { locationName }),
-            ...(latitude && { latitude }),
-            ...(longitude && { longitude }),
-            lastUpdated: new Date().toISOString(),
-          })
-          .where(eq(members.id, existing.id));
-      } else {
-        await db.insert(members).values({
-          workspaceId: workspace.id,
-          slackUserId: member.id!,
-          displayName,
-          avatarUrl,
-          locationName,
-          latitude,
-          longitude,
-          timezone: tz,
-          isOnline: false,
-          lastUpdated: new Date().toISOString(),
-        });
-      }
+      // Note: Member data is fetched live from Slack API in the members endpoint.
+      // This sync is kept for workspace installation but doesn't store to a members table.
+      // Location data set via /wherewework is stored in the user_locations table.
     }
   } catch (error) {
     console.error("Error syncing workspace members:", error);

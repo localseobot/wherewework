@@ -1,7 +1,5 @@
 import { NextResponse } from "next/server";
-import { db } from "@/lib/db";
-import { workspaces } from "@/lib/schema";
-import { eq } from "drizzle-orm";
+import { upsertWorkspace } from "@/lib/db";
 import { syncWorkspaceMembers } from "@/lib/slack";
 
 export async function GET(request: Request) {
@@ -45,26 +43,8 @@ export async function GET(request: Request) {
     const teamName = tokenData.team.name;
     const botToken = tokenData.access_token;
 
-    // Upsert workspace
-    const existing = await db
-      .select()
-      .from(workspaces)
-      .where(eq(workspaces.teamId, teamId))
-      .get();
-
-    if (existing) {
-      await db
-        .update(workspaces)
-        .set({ botToken, teamName })
-        .where(eq(workspaces.id, existing.id));
-    } else {
-      await db.insert(workspaces).values({
-        teamId,
-        teamName,
-        botToken,
-        installedAt: new Date().toISOString(),
-      });
-    }
+    // Upsert workspace in Supabase
+    await upsertWorkspace(teamId, teamName, botToken);
 
     // Sync members in background
     syncWorkspaceMembers(teamId, botToken).catch(console.error);

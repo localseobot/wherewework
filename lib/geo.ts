@@ -1,17 +1,27 @@
+import { supabase } from "./supabase";
+
 interface GeoResult {
   latitude: number;
   longitude: number;
   displayName: string;
 }
 
-// Simple in-memory cache for geocoding results
-const geoCache = new Map<string, GeoResult>();
-
 export async function geocode(query: string): Promise<GeoResult | null> {
   const normalized = query.trim().toLowerCase();
 
-  if (geoCache.has(normalized)) {
-    return geoCache.get(normalized)!;
+  // Check Supabase cache first
+  const { data: cached } = await supabase
+    .from("geo_cache")
+    .select("latitude, longitude, display_name")
+    .eq("query", normalized)
+    .single();
+
+  if (cached) {
+    return {
+      latitude: cached.latitude,
+      longitude: cached.longitude,
+      displayName: cached.display_name,
+    };
   }
 
   try {
@@ -36,7 +46,20 @@ export async function geocode(query: string): Promise<GeoResult | null> {
       displayName: data[0].display_name,
     };
 
-    geoCache.set(normalized, result);
+    // Cache in Supabase (fire and forget)
+    supabase
+      .from("geo_cache")
+      .upsert(
+        {
+          query: normalized,
+          latitude: result.latitude,
+          longitude: result.longitude,
+          display_name: result.displayName,
+        },
+        { onConflict: "query" }
+      )
+      .then(() => {});
+
     return result;
   } catch (error) {
     console.error("Geocoding error:", error);
