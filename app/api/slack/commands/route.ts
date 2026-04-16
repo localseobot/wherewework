@@ -440,7 +440,7 @@ async function handleMeetCommand(
       .trim();
 
     const nameTokens = meetText
-      .split(/(?:,|\band\b|\b&\b)+/)
+      .split(/(?:,|\band\b|\b&\b|\s)+/)
       .map((s) => s.trim().replace(/^@/, ""))
       .filter((s) => s.length > 0 && s.toLowerCase() !== "me");
 

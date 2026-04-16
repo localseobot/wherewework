@@ -130,7 +130,7 @@ export default function MemberCard({ member, isDemo, onClose }: MemberCardProps)
         onClick={() => {
           if (!isDemo && member.slackUserId) {
             const teamParam = (member as { slackTeamId?: string }).slackTeamId || "";
-            window.open(`slack://user?team=${teamParam}&id=${member.slackUserId}`, "_blank");
+            window.open(`https://slack.com/app_redirect?channel=${member.slackUserId}${teamParam ? `&team=${teamParam}` : ""}`, "_blank");
           }
         }}
         disabled={isDemo}
